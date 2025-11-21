@@ -1,4 +1,5 @@
 #!/bin/bash
+# location /my_scripts_demo/incident_report.sh
 
 # ============================================================
 # Incident Data Collector Script
