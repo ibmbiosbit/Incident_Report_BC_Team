@@ -1,5 +1,6 @@
 #!/bin/bash
 # collect.sh — CGI form handler for HTMX or plain HTML
+# location /usr/lib/cgi-bin/collect.sh
 
 echo "Content-Type: text/html"
 echo ""
