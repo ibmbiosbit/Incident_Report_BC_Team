@@ -11,9 +11,11 @@ CSV_FILE="incident_data.csv"
 XLSX_FILE="incident_data.xlsx"
 HTML_FILE="incident_data.html"
 
-source /usr/lib/cgi-bin/temp/form.txt
+source /usr/lib/cgi-bin/temp/form_v2.txt
 
 #INPUT VALUES
+ERP=$ERP
+IORP=$IORP
 INCIDENT_NUMBER=$INCIDENT_NUMBER
 INCIDENT_TEXT=$INCIDENT_TEXT
 ASSIGNEE=$ASSIGNEE
@@ -22,12 +24,12 @@ ACTIONS=$ACTIONS
 
 # If CSV doesn't exist, create header
 if [ ! -f "$CSV_FILE" ]; then
-    echo "incident_number,incident_text,assignee,dead_line,actions_taken" >> "$CSV_FILE"
+    echo "erp_group,incident_change,incident_change_number,incident_text,assignee,dead_line,actions_taken" >> "$CSV_FILE"
 fi
 
 echo "=== Incident Data Entry ==="
 
-echo "$INCIDENT_NUMBER,\"$INCIDENT_TEXT\",\"$ASSIGNEE\",$DEADLINE,\"$ACTIONS\"" >> "$CSV_FILE"
+echo "$ERP,\"$IORP",\"$INCIDENT_NUMBER",\"$INCIDENT_TEXT\",\"$ASSIGNEE\",$DEADLINE,\"$ACTIONS\"" >> "$CSV_FILE"
 
 
 # Convert CSV to Excel (if ssconvert is available)

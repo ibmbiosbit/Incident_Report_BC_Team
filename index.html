@@ -12,19 +12,19 @@
   <h2>Submit your info</h2>
   <form hx-post="/cgi-bin/collect.sh" hx-target="#response" hx-swap="innerHTML">
     <label for="INCIDENT_NUMBER">INCIDENT_NUMBER:</label><br>
-    <input type="text" INCIDENT_NUMBER="INCIDENT_NUMBER" required><br><br>
+    <input type="text" name="INCIDENT_NUMBER" required><br><br>
     
     <label for="INCIDENT_TEXT">INCIDENT_TEXT:</label><br>
-    <input type="text" INCIDENT_TEXT="INCIDENT_TEXT" required><br><br>
+    <input type="text" size="40" name="INCIDENT_TEXT" required><br><br>
 
     <label for="ASSIGNEE">ASSIGNEE:</label><br>
-    <input type="text" ASSIGNEE="ASSIGNEE" required><br><br>
+    <input type="text" name="ASSIGNEE" required><br><br>
 
-    <label for="DEADLINE">DEADLINE:</label><br>
-    <input type="text" DEADLINE="DEADLINE" required><br><br>
+    <label for="DEADLINE">DEADLINE DATE:</label><br>
+    <input type="date" name="DEADLINE" required><br><br>
 
     <label for="ACTIONS">ACTIONS:</label><br>
-    <input type="text" ACTIONS="ACTIONS" required><br><br>
+    <input type="text" size="40" name="ACTIONS" required><br><br>
 
     <button type="submit">Submit</button>
   </form>

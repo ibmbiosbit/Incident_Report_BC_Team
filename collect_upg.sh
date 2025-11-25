@@ -27,11 +27,16 @@ urldecode() {
 
 # Initialize empty variables
 
+ERP=""
+IORP=""
 INCIDENT_NUMBER=""
 INCIDENT_TEXT=""
 ASSIGNEE=""
 DEADLINE=""
+STATUS=""
 ACTIONS=""
+
+
 
 # Split POST data safely
 IFS='&'
@@ -39,7 +44,11 @@ for pair in $POST_DATA; do
     key="${pair%%=*}"
     val="${pair#*=}"
     decoded_val="$(urldecode "$val")"
-    if [ "$key" = "INCIDENT_NUMBER" ]; then
+   if [ "$key" = "ERP" ]; then
+        ERP="$decoded_val"
+   elif [ "$key" = "IORP" ]; then
+        IORP="$decoded_val"
+    elif [ "$key" = "INCIDENT_NUMBER" ]; then
         INCIDENT_NUMBER="$decoded_val"
     elif [ "$key" = "INCIDENT_TEXT" ]; then
         INCIDENT_TEXT="$decoded_val"
@@ -47,6 +56,8 @@ for pair in $POST_DATA; do
         ASSIGNEE="$decoded_val"
     elif [ "$key" = "DEADLINE" ]; then
         DEADLINE="$decoded_val"
+    elif [ "$key" = "STATUS" ]; then
+        STATUS="$decoded_val"
     elif [ "$key" = "ACTIONS" ]; then
         ACTIONS="$decoded_val"
     
@@ -55,12 +66,15 @@ done
 unset IFS
 
 # Store in file
-DATA_FILE="/usr/lib/cgi-bin/temp/form.txt"
+DATA_FILE="/usr/lib/cgi-bin/temp/form_v2.txt"
 {
+    echo "ERP=\"$ERP\""
+    echo "IORP=\"$IORP\""
     echo "INCIDENT_NUMBER=\"$INCIDENT_NUMBER\""
     echo "INCIDENT_TEXT=\"$INCIDENT_TEXT\""
     echo "ASSIGNEE=\"$ASSIGNEE\""
     echo "DEADLINE=\"$DEADLINE\""
+    echo "STATUS=\"$STATUS\""
     echo "ACTIONS=\"$ACTIONS\"" 
 
 } > "$DATA_FILE"
@@ -77,7 +91,7 @@ EOF
 # ==========================================
 
 JENKINS_URL="http://ec2-54-196-155-95.compute-1.amazonaws.com:8080"
-JOB_NAME="FORM_TO_EXCEL"
+JOB_NAME="FORM_TO_EXCELV2"
 USER="rnbiosbit"
 API_TOKEN="11663568b5973a77adbf001d82400da483"
 TRIGGER_TOKEN="incident_token_123"

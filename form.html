@@ -1,0 +1,66 @@
+# location /var/www/html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TWIN BC TEAM Collection Report</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body style="font-family: sans-serif; margin: 3em;">
+
+  <h2>Submit your info</h2>
+  <form hx-post="/cgi-bin/collect_upg.sh" hx-target="#response" hx-swap="innerHTML">
+    
+  <label>Choose a ERP Project:</label><br>
+  <select name="ERP" multiple size="5">
+     <option value="1.RICHEMONT">1.RICHEMONT</option> 
+     <option value="2.ERP2">2.ERP2</option>
+      <option value="3.ERP3">3.ERP3</option>
+      <option value="4.ERP4">4.ERP4</option>
+      <option value="5.ERP6">5.ERP6</option>
+      
+  </select>
+  <br><br>
+  
+  <label>Choose whether its a Incident or Change Activity:</label><br>
+  <select name="IORP" multiple size="3">
+      <option value="INCIDENT">INCIDENT</option>
+      <option value="CHANGE">CHANGE</option>
+      <option value="EOD">EOD</option>
+  </select>
+  <br><br>
+  
+
+    <label for="INCIDENT_NUMBER">INCIDENT OR CHANGE NUMBER:</label><br>
+    <input type="text" name="INCIDENT_NUMBER" required><br><br>
+    
+    <label for="INCIDENT_TEXT">INCIDENT OR CHANGE DESCRIPTION :</label><br>
+    <input type="text" size="40" name="INCIDENT_TEXT" required><br><br>
+
+    <label for="ASSIGNEE">PROCESSOR:</label><br>
+    <input type="text" name="ASSIGNEE" required><br><br>
+
+    <label for="DEADLINE">DEADLINE DATE:</label><br>
+    <input type="date" name="DEADLINE" required><br><br>
+
+   <label>Choose Current Status:</label><br>
+  <select name="STATUS" multiple size="5">
+      <option value="SCHEDULED">SCHEDULED</option>
+      <option value="IN-PROGRESS">IN-PROGRESS</option>
+      <option value="WAITING_CUSTOMER">WAITING_CUSTOMER</option>
+      <option value="WAITING_VENDOR">WAITING_VENDOR</option>
+      <option value="RESOLVED">RESOLVED</option>
+  </select>
+  <br><br>
+
+    <label for="ACTIONS">ACTIONS TAKEN:</label><br>
+    <input type="text" size="40" name="ACTIONS" required><br><br>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="response" style="margin-top: 2em; color: green;"></div>
+
+</body>
+</html>
