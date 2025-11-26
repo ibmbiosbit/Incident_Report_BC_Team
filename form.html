@@ -1,25 +1,23 @@
-# location /var/www/html
-
+<h2>TWIN BC TEAM Activity Tracker Form</h2>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TWIN BC TEAM Collection Report</title>
+  <title>TWIN BC TEAM ENGAGEMENTS </title>
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
-<body style="font-family: sans-serif; margin: 3em;">
+<body style="font-family: sans-serif; margin: 3em; background-image: url('img/TWM1.png'); background-size: cover ;background-repeat: no-repeat;">
 
-  <h2>Submit your info</h2>
+  <h3>Submit your info</h3>
   <form hx-post="/cgi-bin/collect_upg.sh" hx-target="#response" hx-swap="innerHTML">
     
   <label>Choose a ERP Project:</label><br>
   <select name="ERP" multiple size="5">
-     <option value="1.RICHEMONT">1.RICHEMONT</option> 
+  <option value="1.RICHEMONT">1.RICHEMONT</option> 
      <option value="2.ERP2">2.ERP2</option>
       <option value="3.ERP3">3.ERP3</option>
       <option value="4.ERP4">4.ERP4</option>
       <option value="5.ERP6">5.ERP6</option>
-      
   </select>
   <br><br>
   
@@ -58,6 +56,7 @@
     <input type="text" size="40" name="ACTIONS" required><br><br>
 
     <button type="submit">Submit</button>
+    <button type="reset">Reset</button> 
   </form>
 
   <div id="response" style="margin-top: 2em; color: green;"></div>
