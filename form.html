@@ -1,0 +1,66 @@
+<h2>TWIN BC TEAM Activity Tracker Form</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TWIN BC TEAM ENGAGEMENTS </title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body style="font-family: sans-serif; margin: 3em; background-image: url('img/TWM1.png'); background-size: cover ;background-repeat: no-repeat;">
+
+  <h3>Submit your info</h3>
+  <form hx-post="/cgi-bin/collect_upg.sh" hx-target="#response" hx-swap="innerHTML">
+
+  <label>Choose a ERP Project:</label><br>
+  <select name="ERP" multiple size="6">
+  <option value="1.RICHEMONT">1.RICHEMONT</option>
+     <option value="2.ERP2">2.ERP2</option>
+      <option value="3.ERP3">3.ERP3</option>
+      <option value="4.ERP4">4.ERP4</option>
+      <option value="5.ERP6">5.ERP6</option>
+      <option value="6.CVSS">6.CVSS</option>
+  </select>
+  <br><br>
+
+  <label>Choose Category Activity:</label><br>
+  <select name="IORP" multiple size="5">
+      <option value="INCIDENT">INCIDENT</option>
+      <option value="CHANGE">CHANGE</option>
+      <option value="EOD">EOD</option>
+      <option value="AUTOMATION">AUTOMATION</option>
+      <option value="REPORTS">REPORTS</option>
+  </select>
+  <br><br>
+
+    <label for="INCIDENT_NUMBER">INCIDENT/CHANGE NUMBER:</label><br>
+    <input type="text" name="INCIDENT_NUMBER" required><br><br>
+
+    <label for="INCIDENT_TEXT">Brief Description of Activity :</label><br>
+    <input type="text" size="50" name="INCIDENT_TEXT" required><br><br>
+  
+    <label for="ACTIONS">ACTIONS TAKEN:</label><br>
+    <input type="text" size="60" name="ACTIONS" required><br><br>
+
+    <label for="ASSIGNEE">PROCESSOR:</label><br>
+    <input type="text" name="ASSIGNEE" required><br><br>
+
+    <label for="DEADLINE">DEADLINE DATE:</label><br>
+    <input type="date" name="DEADLINE" required><br><br>
+
+   <label>Choose Current Status:</label><br>
+  <select name="STATUS" multiple size="5">
+      <option value="SCHEDULED">SCHEDULED</option>
+      <option value="IN-PROGRESS">IN-PROGRESS</option>
+      <option value="WAITING_CUSTOMER">WAITING_CUSTOMER</option>
+      <option value="WAITING_VENDOR">WAITING_VENDOR</option>
+      <option value="RESOLVED">RESOLVED</option>
+  </select>
+  <br><br>
+
+    <button type="submit">Submit</button>
+    <button type="reset">Reset</button>
+  </form>
+
+  <div id="response" style="margin-top: 2em; color: green;"></div>
+
+</body>
