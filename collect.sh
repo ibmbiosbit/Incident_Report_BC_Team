@@ -1,5 +1,5 @@
 #!/bin/bash
-# collect.sh — CGI form handler
+# collect.sh — CGI form handler (CSV + Jenkins)
 
 echo "Content-Type: text/html"
 echo ""
@@ -25,10 +25,14 @@ urldecode() {
 }
 
 # Init variables
+PROJECT_TITLE=""
 INCIDENT_NUMBER=""
 INCIDENT_TEXT=""
 ASSIGNEE=""
+START_DATE=""
 DEADLINE=""
+PRIORITY=""
+STATUS=""
 ACTIONS=""
 
 # Parse POST data
@@ -38,50 +42,52 @@ for pair in $POST_DATA; do
     val="${pair#*=}"
     decoded_val="$(urldecode "$val")"
 
-    if [ "$key" = "INCIDENT_NUMBER" ]; then
-        INCIDENT_NUMBER="$decoded_val"
-    elif [ "$key" = "INCIDENT_TEXT" ]; then
-        INCIDENT_TEXT="$decoded_val"
-    elif [ "$key" = "ASSIGNEE" ]; then
-        ASSIGNEE="$decoded_val"
-    elif [ "$key" = "DEADLINE" ]; then
-        DEADLINE="$decoded_val"
-    elif [ "$key" = "ACTIONS" ]; then
-        ACTIONS="$decoded_val"
-    fi
+    case "$key" in
+        PROJECT_TITLE) PROJECT_TITLE="$decoded_val" ;;
+        INCIDENT_NUMBER) INCIDENT_NUMBER="$decoded_val" ;;
+        INCIDENT_TEXT) INCIDENT_TEXT="$decoded_val" ;;
+        ASSIGNEE) ASSIGNEE="$decoded_val" ;;
+        START_DATE) START_DATE="$decoded_val" ;;
+        DEADLINE) DEADLINE="$decoded_val" ;;
+        PRIORITY) PRIORITY="$decoded_val" ;;
+        STATUS) STATUS="$decoded_val" ;;
+        ACTIONS) ACTIONS="$decoded_val" ;;
+    esac
 done
 unset IFS
 
-# CSV file location (on server)
-CSV_FILE="/usr/lib/cgi-bin/temp/incidents.csv"
+# CSV file
+CSV_DIR="/usr/lib/cgi-bin/temp"
+CSV_FILE="$CSV_DIR/incidents.csv"
 
-mkdir -p /usr/lib/cgi-bin/temp
+mkdir -p "$CSV_DIR"
 
-# Create header if file does not exist
+# Create header if not exists
 if [ ! -f "$CSV_FILE" ]; then
-    echo "INCIDENT_NUMBER,INCIDENT_TEXT,ASSIGNEE,DEADLINE,ACTIONS,TIMESTAMP" > "$CSV_FILE"
+    echo "PROJECT_TITLE,INCIDENT_NUMBER,INCIDENT_TEXT,ASSIGNEE,START_DATE,DEADLINE,PRIORITY,STATUS,ACTIONS,TIMESTAMP" > "$CSV_FILE"
 fi
 
-# Escape double quotes for CSV
+# Escape for CSV
 esc() {
     echo "$1" | sed 's/"/""/g'
 }
 
 # Append row
-echo "\"$(esc "$INCIDENT_NUMBER")\",\"$(esc "$INCIDENT_TEXT")\",\"$(esc "$ASSIGNEE")\",\"$(esc "$DEADLINE")\",\"$(esc "$ACTIONS")\",\"$(date '+%Y-%m-%d %H:%M:%S')\"" >> "$CSV_FILE"
+echo "\"$(esc "$PROJECT_TITLE")\",\"$(esc "$INCIDENT_NUMBER")\",\"$(esc "$INCIDENT_TEXT")\",\"$(esc "$ASSIGNEE")\",\"$(esc "$START_DATE")\",\"$(esc "$DEADLINE")\",\"$(esc "$PRIORITY")\",\"$(esc "$STATUS")\",\"$(esc "$ACTIONS")\",\"$(date '+%Y-%m-%d %H:%M:%S')\"" >> "$CSV_FILE"
 
-# Response
+# Response to browser
 cat <<EOF
-<p>✅ Data received and saved successfully!</p>
+<p>✅ Data saved successfully!</p>
 <p><strong>Incident:</strong> $INCIDENT_NUMBER</p>
 <p><strong>Assignee:</strong> $ASSIGNEE</p>
+<p><strong>Priority:</strong> $PRIORITY</p>
+<p><strong>Status:</strong> $STATUS</p>
 <p><strong>Saved to:</strong> $CSV_FILE</p>
 EOF
 
 # ==========================================
 # Trigger Jenkins
 # ==========================================
-
 JENKINS_URL="http://ec2-54-196-155-95.compute-1.amazonaws.com:8080"
 JOB_NAME="FORM_TO_EXCEL"
 USER="rnbiosbit"
