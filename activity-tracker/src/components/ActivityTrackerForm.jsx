@@ -37,6 +37,10 @@ export default function ActivityTrackerForm() {
       setErrors((prev) => ({ ...prev, [name]: 'Commas are not allowed in this field.' }));
       return;
     }
+    if (name === 'description' && value.length > 45) {
+      setErrors((prev) => ({ ...prev, description: 'Maximum 45 characters allowed.' }));
+      return;
+    }
     setErrors((prev) => ({ ...prev, [name]: '' }));
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -46,6 +50,10 @@ export default function ActivityTrackerForm() {
       e.preventDefault();
       if (actionInput.includes(',')) {
         setErrors((prev) => ({ ...prev, actionsTaken: 'Commas are not allowed. Press Enter to add each action.' }));
+        return;
+      }
+      if (actionInput.trim().length > 45) {
+        setErrors((prev) => ({ ...prev, actionsTaken: 'Maximum 45 characters per action.' }));
         return;
       }
       setFormData((prev) => ({ ...prev, actionsTaken: [...prev.actionsTaken, actionInput.trim()] }));
@@ -58,6 +66,10 @@ export default function ActivityTrackerForm() {
     if (!actionInput.trim()) return;
     if (actionInput.includes(',')) {
       setErrors((prev) => ({ ...prev, actionsTaken: 'Commas are not allowed.' }));
+      return;
+    }
+    if (actionInput.trim().length > 45) {
+      setErrors((prev) => ({ ...prev, actionsTaken: 'Maximum 45 characters per action.' }));
       return;
     }
     setFormData((prev) => ({ ...prev, actionsTaken: [...prev.actionsTaken, actionInput.trim()] }));
@@ -201,13 +213,13 @@ export default function ActivityTrackerForm() {
             {/* Incident Number + Priority */}
             <div className="grid grid-cols-2 gap-4 mb-5">
               <div>
-                <label className={LABEL_STYLE}>Incident Number <span className="text-red-400">*</span></label>
+                <label className={LABEL_STYLE}>Incident/Change Number <span className="text-red-400">*</span></label>
                 <input
                   type="text"
                   name="incidentNumber"
                   value={formData.incidentNumber}
                   onChange={handleInputChange}
-                  placeholder="INC-00001"
+                  placeholder="INC-00001 or CHG-00001"
                   className={`${FIELD_STYLE} ${errors.incidentNumber ? 'border-red-300' : ''}`}
                 />
                 <FieldError name="incidentNumber" />
@@ -268,10 +280,16 @@ export default function ActivityTrackerForm() {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
+                maxLength={45}
                 placeholder="Describe the incident or task in detail..."
                 className={`${FIELD_STYLE} resize-none leading-relaxed ${errors.description ? 'border-red-300' : ''}`}
               />
-              <FieldError name="description" />
+              <div className="flex justify-between items-center mt-1">
+                <FieldError name="description" />
+                <span className={`text-xs ml-auto ${formData.description.length >= 45 ? 'text-red-400' : 'text-gray-400'}`}>
+                  {formData.description.length}/45
+                </span>
+              </div>
             </div>
 
             {/* Assignee */}
@@ -323,14 +341,20 @@ export default function ActivityTrackerForm() {
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Actions Taken</p>
 
             <div className="flex gap-2">
-              <input
-                type="text"
-                value={actionInput}
-                onChange={(e) => setActionInput(e.target.value)}
-                onKeyDown={handleActionKeyPress}
-                placeholder="Describe an action and press Enter or +"
-                className={`${FIELD_STYLE} flex-1`}
-              />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={actionInput}
+                  onChange={(e) => setActionInput(e.target.value)}
+                  onKeyDown={handleActionKeyPress}
+                  maxLength={45}
+                  placeholder="Describe an action and press Enter or +"
+                  className={`${FIELD_STYLE} w-full pr-12`}
+                />
+                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none ${actionInput.length >= 45 ? 'text-red-400' : 'text-gray-400'}`}>
+                  {actionInput.length}/45
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={addAction}
