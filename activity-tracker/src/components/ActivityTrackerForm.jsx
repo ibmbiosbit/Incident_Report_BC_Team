@@ -125,7 +125,6 @@ export default function ActivityTrackerForm() {
       const text = await response.text();
       if (!response.ok) throw new Error('Server error while submitting form');
       setServerMessage(text);
-      handleReset();
     } catch (err) {
       console.error(err);
       alert('Error submitting form to server.');
