@@ -1,12 +1,12 @@
 #!/bin/bash
-# collect.sh — CGI form handler (CSV + Jenkins)
+# collect.sh — CGI form handler (CSV + Jenkins + Duplicate Protection)
 
 echo "Content-Type: text/html"
 echo ""
 
-# Only allow POST
+# Allow only POST
 if [ "$REQUEST_METHOD" != "POST" ]; then
-    echo "<p>❌ Error: Only POST method is supported.</p>"
+    echo "<p>❌ Error: Only POST method allowed.</p>"
     exit 1
 fi
 
@@ -18,13 +18,13 @@ else
     exit 1
 fi
 
-# URL decode function
+# URL decode
 urldecode() {
     local data="${1//+/ }"
     printf '%b' "${data//%/\\x}"
 }
 
-# Init variables
+# Initialize variables
 PROJECT_TITLE=""
 INCIDENT_NUMBER=""
 INCIDENT_TEXT=""
@@ -56,18 +56,34 @@ for pair in $POST_DATA; do
 done
 unset IFS
 
-# CSV file
 CSV_DIR="/usr/lib/cgi-bin/temp"
 CSV_FILE="$CSV_DIR/incidents.csv"
 
 mkdir -p "$CSV_DIR"
 
-# Create header if not exists
+# Create CSV if missing
 if [ ! -f "$CSV_FILE" ]; then
     echo "PROJECT_TITLE,INCIDENT_NUMBER,INCIDENT_TEXT,ASSIGNEE,START_DATE,DEADLINE,PRIORITY,STATUS,ACTIONS,TIMESTAMP" > "$CSV_FILE"
 fi
 
-# Escape for CSV
+# ==========================================
+# DUPLICATE CHECK
+# ==========================================
+
+if awk -F',' -v inc="$INCIDENT_NUMBER" '
+NR>1 {
+gsub(/"/,"",$2)
+if ($2 == inc) {
+print "duplicate"
+exit
+}
+}' "$CSV_FILE" | grep -q duplicate
+then
+    echo "<p style='color:red;'>❌ Duplicate incident number detected. Entry already exists.</p>"
+    exit 0
+fi
+
+# CSV escape
 esc() {
     echo "$1" | sed 's/"/""/g'
 }
@@ -75,7 +91,7 @@ esc() {
 # Append row
 echo "\"$(esc "$PROJECT_TITLE")\",\"$(esc "$INCIDENT_NUMBER")\",\"$(esc "$INCIDENT_TEXT")\",\"$(esc "$ASSIGNEE")\",\"$(esc "$START_DATE")\",\"$(esc "$DEADLINE")\",\"$(esc "$PRIORITY")\",\"$(esc "$STATUS")\",\"$(esc "$ACTIONS")\",\"$(date '+%Y-%m-%d %H:%M:%S')\"" >> "$CSV_FILE"
 
-# Response to browser
+# Response
 cat <<EOF
 <p>✅ Data saved successfully!</p>
 <p><strong>Incident:</strong> $INCIDENT_NUMBER</p>
@@ -88,6 +104,7 @@ EOF
 # ==========================================
 # Trigger Jenkins
 # ==========================================
+
 JENKINS_URL="http://ec2-54-196-155-95.compute-1.amazonaws.com:8080"
 JOB_NAME="FORM_TO_EXCEL"
 USER="rnbiosbit"
@@ -96,4 +113,4 @@ TRIGGER_TOKEN="incident_token_123"
 
 BUILD_URL="${JENKINS_URL}/job/${JOB_NAME}/build?token=${TRIGGER_TOKEN}"
 
-curl -X POST "${BUILD_URL}" --user "${USER}:${API_TOKEN}"
+curl -s -X POST "${BUILD_URL}" --user "${USER}:${API_TOKEN}" > /dev/null

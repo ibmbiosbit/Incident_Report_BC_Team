@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../assets/logo.jpeg';
-import { AlertCircle, X, Plus, ChevronDown } from 'lucide-react';
-
+import { AlertCircle, X, Plus, ChevronDown, CheckCircle } from 'lucide-react';
 
 const FIELD_STYLE = `
   w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-sm text-gray-800
@@ -11,9 +10,8 @@ const FIELD_STYLE = `
 
 const LABEL_STYLE = `block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-1.5`;
 
-const noComma = (value) => !value.includes(',');
-
 export default function ActivityTrackerForm() {
+
   const [formData, setFormData] = useState({
     projectTitle: '',
     incidentNumber: '',
@@ -29,7 +27,9 @@ export default function ActivityTrackerForm() {
   const [actionInput, setActionInput] = useState('');
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [serverMessage, setServerMessage] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successData, setSuccessData] = useState(null);
+  const [submittedIncidents, setSubmittedIncidents] = useState(new Set());
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,10 +49,10 @@ export default function ActivityTrackerForm() {
     if (e.key === 'Enter' && actionInput.trim()) {
       e.preventDefault();
       if (actionInput.includes(',')) {
-        setErrors((prev) => ({ ...prev, actionsTaken: 'Commas are not allowed. Press Enter to add each action.' }));
+        setErrors((prev) => ({ ...prev, actionsTaken: 'Commas are not allowed.' }));
         return;
       }
-      if (actionInput.trim().length > 45) {
+      if (actionInput.length > 45) {
         setErrors((prev) => ({ ...prev, actionsTaken: 'Maximum 45 characters per action.' }));
         return;
       }
@@ -68,7 +68,7 @@ export default function ActivityTrackerForm() {
       setErrors((prev) => ({ ...prev, actionsTaken: 'Commas are not allowed.' }));
       return;
     }
-    if (actionInput.trim().length > 45) {
+    if (actionInput.length > 45) {
       setErrors((prev) => ({ ...prev, actionsTaken: 'Maximum 45 characters per action.' }));
       return;
     }
@@ -100,8 +100,16 @@ export default function ActivityTrackerForm() {
       return;
     }
 
+    const incident = formData.incidentNumber.trim();
+
+    if (submittedIncidents.has(incident)) {
+      alert('Duplicate incident number detected. This entry was already submitted.');
+      return;
+    }
+
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
-    setServerMessage('');
 
     try {
       const body = new URLSearchParams({
@@ -123,8 +131,25 @@ export default function ActivityTrackerForm() {
       });
 
       const text = await response.text();
-      if (!response.ok) throw new Error('Server error while submitting form');
-      setServerMessage(text);
+
+      if (!response.ok) throw new Error('Server error');
+
+      if (text.includes('Duplicate incident')) {
+        alert('Server rejected duplicate entry.');
+      } else {
+        setSubmittedIncidents((prev) => new Set(prev).add(incident));
+        // Store submitted data for popup
+        setSuccessData({
+          incidentNumber: formData.incidentNumber,
+          assignee: formData.assignee,
+          priority: formData.priority,
+          status: formData.status,
+          projectTitle: formData.projectTitle,
+        });
+        setShowSuccess(true);
+        handleReset();
+      }
+
     } catch (err) {
       console.error(err);
       alert('Error submitting form to server.');
@@ -147,7 +172,6 @@ export default function ActivityTrackerForm() {
     });
     setActionInput('');
     setErrors({});
-    setServerMessage('');
   };
 
   const FieldError = ({ name }) =>
@@ -162,40 +186,74 @@ export default function ActivityTrackerForm() {
       style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
       className="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4"
     >
-      {/* Load DM Sans */}
       <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet"
       />
+
+      {/* ✅ SUCCESS POPUP MODAL */}
+      {showSuccess && successData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="bg-emerald-100 rounded-full p-4">
+                <CheckCircle size={40} className="text-emerald-600" />
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold text-slate-800 mb-1">Submitted Successfully!</h2>
+            <p className="text-sm text-gray-400 mb-6">Your incident has been recorded.</p>
+
+            <div className="bg-gray-50 rounded-lg p-4 text-left space-y-2 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Project</span>
+                <span className="font-medium text-slate-700">{successData.projectTitle}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Incident</span>
+                <span className="font-medium text-slate-700">{successData.incidentNumber}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Assignee</span>
+                <span className="font-medium text-slate-700">{successData.assignee}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Priority</span>
+                <span className="font-medium text-slate-700">{successData.priority}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Status</span>
+                <span className="font-medium text-slate-700">{successData.status}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="w-full px-6 py-2.5 bg-slate-800 text-white text-sm font-semibold rounded-md hover:bg-slate-700 transition-all duration-150"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="w-full max-w-2xl">
 
         {/* Header */}
         <div className="mb-8">
           <div className="mb-4">
-            <img
-              src={logo}
-              alt="Teamwork Logo"
-              style={{ height: '40px', objectFit: 'contain' }}
-            />
+            <img src={logo} alt="Teamwork Logo" style={{ height: '40px', objectFit: 'contain' }} />
           </div>
-          <h1
-            style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, letterSpacing: '-0.02em' }}
-            className="text-3xl text-slate-900"
-          >
-            Activity Tracker
-          </h1>
+          <h1 className="text-3xl text-slate-900 font-semibold">Activity Tracker</h1>
           <p className="text-sm text-gray-400 mt-1">Incident management &amp; task coordination</p>
         </div>
 
         {/* Card */}
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
-          {/* Section: Project Info */}
+          {/* Section: Project Details */}
           <div className="px-8 pt-8 pb-6 border-b border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Project Details</p>
 
-            {/* Project Title */}
             <div className="mb-5">
               <label className={LABEL_STYLE}>Project Title <span className="text-red-400">*</span></label>
               <input
@@ -209,7 +267,6 @@ export default function ActivityTrackerForm() {
               <FieldError name="projectTitle" />
             </div>
 
-            {/* Incident Number + Priority */}
             <div className="grid grid-cols-2 gap-4 mb-5">
               <div>
                 <label className={LABEL_STYLE}>Incident/Change Number <span className="text-red-400">*</span></label>
@@ -218,7 +275,7 @@ export default function ActivityTrackerForm() {
                   name="incidentNumber"
                   value={formData.incidentNumber}
                   onChange={handleInputChange}
-                  placeholder="INC-00001 or CHG-00001"
+                  placeholder="INC-00001"
                   className={`${FIELD_STYLE} ${errors.incidentNumber ? 'border-red-300' : ''}`}
                 />
                 <FieldError name="incidentNumber" />
@@ -244,7 +301,6 @@ export default function ActivityTrackerForm() {
               </div>
             </div>
 
-            {/* Status */}
             <div>
               <label className={LABEL_STYLE}>Status <span className="text-red-400">*</span></label>
               <div className="flex gap-2 flex-wrap">
@@ -267,18 +323,17 @@ export default function ActivityTrackerForm() {
             </div>
           </div>
 
-          {/* Section: Description & People */}
+          {/* Section: Incident Details */}
           <div className="px-8 py-6 border-b border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Incident Details</p>
 
-            {/* Description */}
             <div className="mb-5">
               <label className={LABEL_STYLE}>Description <span className="text-red-400">*</span></label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                rows={4}
+                rows={3}
                 maxLength={45}
                 placeholder="Describe the incident or task in detail..."
                 className={`${FIELD_STYLE} resize-none leading-relaxed ${errors.description ? 'border-red-300' : ''}`}
@@ -291,7 +346,6 @@ export default function ActivityTrackerForm() {
               </div>
             </div>
 
-            {/* Assignee */}
             <div>
               <label className={LABEL_STYLE}>Assignee <span className="text-red-400">*</span></label>
               <input
@@ -306,10 +360,9 @@ export default function ActivityTrackerForm() {
             </div>
           </div>
 
-          {/* Section: Dates */}
+          {/* Section: Timeline */}
           <div className="px-8 py-6 border-b border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Timeline</p>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={LABEL_STYLE}>Start Date</label>
@@ -335,10 +388,9 @@ export default function ActivityTrackerForm() {
             </div>
           </div>
 
-          {/* Section: Actions */}
+          {/* Section: Actions Taken */}
           <div className="px-8 py-6 border-b border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Actions Taken</p>
-
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <input
@@ -363,14 +415,10 @@ export default function ActivityTrackerForm() {
               </button>
             </div>
             <FieldError name="actionsTaken" />
-
             {formData.actionsTaken.length > 0 && (
               <ul className="mt-3 space-y-1.5">
                 {formData.actionsTaken.map((a, i) => (
-                  <li
-                    key={i}
-                    className="flex justify-between items-center text-sm text-gray-700 bg-gray-50 border border-gray-100 px-3 py-2 rounded-md"
-                  >
+                  <li key={i} className="flex justify-between items-center text-sm text-gray-700 bg-gray-50 border border-gray-100 px-3 py-2 rounded-md">
                     <span className="flex items-center gap-2">
                       <span className="text-[10px] font-mono text-gray-400 w-5">{String(i + 1).padStart(2, '0')}</span>
                       {a}
@@ -402,15 +450,8 @@ export default function ActivityTrackerForm() {
               {isSubmitting ? 'Submitting…' : 'Submit Entry'}
             </button>
           </div>
-        </div>
 
-        {/* Server Response */}
-        {serverMessage && (
-          <div
-            className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800"
-            dangerouslySetInnerHTML={{ __html: serverMessage }}
-          />
-        )}
+        </div>
 
         <p className="text-center text-xs text-gray-300 mt-6">Activity Management System</p>
       </div>
