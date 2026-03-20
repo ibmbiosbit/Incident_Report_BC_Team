@@ -45,6 +45,20 @@ export default function ActivityTrackerForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleActionInputChange = (e) => {
+    const value = e.target.value;
+    if (value.includes(',')) {
+      setErrors((prev) => ({ ...prev, actionsTaken: 'Commas are not allowed.' }));
+      return;
+    }
+    if (value.length > 45) {
+      setErrors((prev) => ({ ...prev, actionsTaken: 'Maximum 45 characters per action.' }));
+      return;
+    }
+    setErrors((prev) => ({ ...prev, actionsTaken: '' }));
+    setActionInput(value);
+  };
+
   const handleActionKeyPress = (e) => {
     if (e.key === 'Enter' && actionInput.trim()) {
       e.preventDefault();
@@ -138,7 +152,6 @@ export default function ActivityTrackerForm() {
         alert('Server rejected duplicate entry.');
       } else {
         setSubmittedIncidents((prev) => new Set(prev).add(incident));
-        // Store submitted data for popup
         setSuccessData({
           incidentNumber: formData.incidentNumber,
           assignee: formData.assignee,
@@ -191,7 +204,7 @@ export default function ActivityTrackerForm() {
         rel="stylesheet"
       />
 
-      {/* ✅ SUCCESS POPUP MODAL */}
+      {/* SUCCESS POPUP MODAL */}
       {showSuccess && successData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center">
@@ -396,7 +409,7 @@ export default function ActivityTrackerForm() {
                 <input
                   type="text"
                   value={actionInput}
-                  onChange={(e) => setActionInput(e.target.value)}
+                  onChange={handleActionInputChange}
                   onKeyDown={handleActionKeyPress}
                   maxLength={45}
                   placeholder="Describe an action and press Enter or +"
