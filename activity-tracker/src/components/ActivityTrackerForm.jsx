@@ -13,14 +13,14 @@ const LABEL_STYLE = `block text-xs font-semibold uppercase tracking-widest text-
 export default function ActivityTrackerForm() {
 
   const [formData, setFormData] = useState({
-    projectTitle: '',
+    erpProject: '',
     incidentNumber: '',
     description: '',
     assignee: '',
     deadline: '',
     startDate: '',
     actionsTaken: [],
-    priority: '',
+    category: '',
     status: '',
   });
 
@@ -33,7 +33,7 @@ export default function ActivityTrackerForm() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (['projectTitle', 'incidentNumber', 'description', 'assignee'].includes(name) && value.includes(',')) {
+    if (['incidentNumber', 'description', 'assignee'].includes(name) && value.includes(',')) {
       setErrors((prev) => ({ ...prev, [name]: 'Commas are not allowed in this field.' }));
       return;
     }
@@ -97,12 +97,12 @@ export default function ActivityTrackerForm() {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.projectTitle.trim()) newErrors.projectTitle = 'Required';
+    if (!formData.erpProject) newErrors.erpProject = 'Required';
     if (!formData.incidentNumber.trim()) newErrors.incidentNumber = 'Required';
     if (!formData.description.trim()) newErrors.description = 'Required';
     if (!formData.assignee.trim()) newErrors.assignee = 'Required';
     if (!formData.deadline) newErrors.deadline = 'Required';
-    if (!formData.priority) newErrors.priority = 'Required';
+    if (!formData.category) newErrors.category = 'Required';
     if (!formData.status) newErrors.status = 'Required';
     return newErrors;
   };
@@ -127,13 +127,13 @@ export default function ActivityTrackerForm() {
 
     try {
       const body = new URLSearchParams({
-        PROJECT_TITLE: formData.projectTitle,
+        PROJECT_TITLE: formData.erpProject,
         INCIDENT_NUMBER: formData.incidentNumber,
         INCIDENT_TEXT: formData.description,
         ASSIGNEE: formData.assignee,
         START_DATE: formData.startDate,
         DEADLINE: formData.deadline,
-        PRIORITY: formData.priority,
+        PRIORITY: formData.category,
         STATUS: formData.status,
         ACTIONS: formData.actionsTaken.join(' | '),
       });
@@ -155,9 +155,9 @@ export default function ActivityTrackerForm() {
         setSuccessData({
           incidentNumber: formData.incidentNumber,
           assignee: formData.assignee,
-          priority: formData.priority,
+          category: formData.category,
           status: formData.status,
-          projectTitle: formData.projectTitle,
+          erpProject: formData.erpProject,
         });
         setShowSuccess(true);
         handleReset();
@@ -173,14 +173,14 @@ export default function ActivityTrackerForm() {
 
   const handleReset = () => {
     setFormData({
-      projectTitle: '',
+      erpProject: '',
       incidentNumber: '',
       description: '',
       assignee: '',
       deadline: '',
       startDate: '',
       actionsTaken: [],
-      priority: '',
+      category: '',
       status: '',
     });
     setActionInput('');
@@ -218,8 +218,8 @@ export default function ActivityTrackerForm() {
 
             <div className="bg-gray-50 rounded-lg p-4 text-left space-y-2 mb-6">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Project</span>
-                <span className="font-medium text-slate-700">{successData.projectTitle}</span>
+                <span className="text-gray-500">ERP Project</span>
+                <span className="font-medium text-slate-700">{successData.erpProject}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Incident</span>
@@ -230,8 +230,8 @@ export default function ActivityTrackerForm() {
                 <span className="font-medium text-slate-700">{successData.assignee}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Priority</span>
-                <span className="font-medium text-slate-700">{successData.priority}</span>
+                <span className="text-gray-500">Category</span>
+                <span className="font-medium text-slate-700">{successData.category}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Status</span>
@@ -263,23 +263,33 @@ export default function ActivityTrackerForm() {
         {/* Card */}
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
-          {/* Section: Project Details */}
+          {/* Section: Choose ERP Project */}
           <div className="px-8 pt-8 pb-6 border-b border-gray-100">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Project Details</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-5">Choose ERP Project</p>
 
+            {/* ERP Project Dropdown */}
             <div className="mb-5">
-              <label className={LABEL_STYLE}>Project Title <span className="text-red-400">*</span></label>
-              <input
-                type="text"
-                name="projectTitle"
-                value={formData.projectTitle}
-                onChange={handleInputChange}
-                placeholder="e.g. Network Infrastructure Upgrade"
-                className={`${FIELD_STYLE} ${errors.projectTitle ? 'border-red-300' : ''}`}
-              />
-              <FieldError name="projectTitle" />
+              <label className={LABEL_STYLE}>ERP Project <span className="text-red-400">*</span></label>
+              <div className="relative">
+                <select
+                  name="erpProject"
+                  value={formData.erpProject}
+                  onChange={handleInputChange}
+                  className={`${FIELD_STYLE} appearance-none pr-8 ${errors.erpProject ? 'border-red-300' : ''}`}
+                >
+                  <option value="Richemont">1. Richemont</option>
+                  <option value="ERP2">2. ERP2</option>
+                  <option value="ERP3">3. ERP3</option>
+                  <option value="ERP4">4. ERP4</option>
+                  <option value="ERP6">5. ERP6</option>
+                  <option value="CVSS">6. CVSS</option>
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+              <FieldError name="erpProject" />
             </div>
 
+            {/* Incident Number + Category */}
             <div className="grid grid-cols-2 gap-4 mb-5">
               <div>
                 <label className={LABEL_STYLE}>Incident/Change Number <span className="text-red-400">*</span></label>
@@ -288,36 +298,38 @@ export default function ActivityTrackerForm() {
                   name="incidentNumber"
                   value={formData.incidentNumber}
                   onChange={handleInputChange}
-                  placeholder="INC-00001"
+                  placeholder=""
                   className={`${FIELD_STYLE} ${errors.incidentNumber ? 'border-red-300' : ''}`}
                 />
                 <FieldError name="incidentNumber" />
               </div>
               <div>
-                <label className={LABEL_STYLE}>Priority <span className="text-red-400">*</span></label>
+                <label className={LABEL_STYLE}>Category <span className="text-red-400">*</span></label>
                 <div className="relative">
                   <select
-                    name="priority"
-                    value={formData.priority}
+                    name="category"
+                    value={formData.category}
                     onChange={handleInputChange}
-                    className={`${FIELD_STYLE} appearance-none pr-8 ${errors.priority ? 'border-red-300' : ''}`}
+                    className={`${FIELD_STYLE} appearance-none pr-8 ${errors.category ? 'border-red-300' : ''}`}
                   >
-                    <option value="">Select priority</option>
-                    <option value="Critical">Critical</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
+                    <option value="">Select category</option>
+                    <option value="INCIDENT">INCIDENT</option>
+                    <option value="CHANGE">CHANGE</option>
+                    <option value="EOD">EOD</option>
+                    <option value="REPORTS">REPORTS</option>
+                    <option value="AUTOMATION">AUTOMATION</option>
                   </select>
                   <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
-                <FieldError name="priority" />
+                <FieldError name="category" />
               </div>
             </div>
 
+            {/* Status */}
             <div>
               <label className={LABEL_STYLE}>Status <span className="text-red-400">*</span></label>
               <div className="flex gap-2 flex-wrap">
-                {['Open', 'In Progress', 'On Hold', 'Resolved', 'Closed'].map((s) => (
+                {['SCHEDULED', 'IN-PROGRESS', 'WAITING VENDOR', 'WAITING CUSTOMER', 'RESOLVED'].map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -366,7 +378,7 @@ export default function ActivityTrackerForm() {
                 name="assignee"
                 value={formData.assignee}
                 onChange={handleInputChange}
-                placeholder="Full name"
+                placeholder=""
                 className={`${FIELD_STYLE} ${errors.assignee ? 'border-red-300' : ''}`}
               />
               <FieldError name="assignee" />

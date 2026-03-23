@@ -61,9 +61,9 @@ CSV_FILE="$CSV_DIR/incidents.csv"
 
 mkdir -p "$CSV_DIR"
 
-# Create CSV if missing
+# Create CSV with updated headers if missing
 if [ ! -f "$CSV_FILE" ]; then
-    echo "PROJECT_TITLE,INCIDENT_NUMBER,INCIDENT_TEXT,ASSIGNEE,START_DATE,DEADLINE,PRIORITY,STATUS,ACTIONS,TIMESTAMP" > "$CSV_FILE"
+    echo "ERP_PROJECT,INCIDENT_NUMBER,INCIDENT_TEXT,ASSIGNEE,START_DATE,DEADLINE,CATEGORY,STATUS,ACTIONS,TIMESTAMP" > "$CSV_FILE"
 fi
 
 # ==========================================
@@ -96,7 +96,7 @@ cat <<EOF
 <p>✅ Data saved successfully!</p>
 <p><strong>Incident:</strong> $INCIDENT_NUMBER</p>
 <p><strong>Assignee:</strong> $ASSIGNEE</p>
-<p><strong>Priority:</strong> $PRIORITY</p>
+<p><strong>Category:</strong> $PRIORITY</p>
 <p><strong>Status:</strong> $STATUS</p>
 <p><strong>Saved to:</strong> $CSV_FILE</p>
 EOF
