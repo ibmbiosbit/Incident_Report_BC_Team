@@ -272,17 +272,18 @@ export default function ActivityTrackerForm() {
               <label className={LABEL_STYLE}>ERP Project <span className="text-red-400">*</span></label>
               <div className="relative">
                 <select
-                  name="erpProject"
+                name="erpProject"
                   value={formData.erpProject}
                   onChange={handleInputChange}
                   className={`${FIELD_STYLE} appearance-none pr-8 ${errors.erpProject ? 'border-red-300' : ''}`}
                 >
-                  <option value="Richemont">1. Richemont</option>
-                  <option value="ERP2">2. ERP2</option>
-                  <option value="ERP3">3. ERP3</option>
-                  <option value="ERP4">4. ERP4</option>
-                  <option value="ERP6">5. ERP6</option>
-                  <option value="CVSS">6. CVSS</option>
+                  <option value="">Select ERP project</option>
+                  <option value="1. Richemont">1. Richemont</option>
+                  <option value="2. ERP2">2. ERP2</option>
+                  <option value="3. ERP3">3. ERP3</option>
+                  <option value="4. ERP4">4. ERP4</option>
+                  <option value="5. ERP6">5. ERP6</option>
+                  <option value="6. CVSS">6. CVSS</option>
                 </select>
                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
