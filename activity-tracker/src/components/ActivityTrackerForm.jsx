@@ -104,11 +104,22 @@ export default function ActivityTrackerForm() {
     if (!formData.deadline) newErrors.deadline = 'Required';
     if (!formData.category) newErrors.category = 'Required';
     if (!formData.status) newErrors.status = 'Required';
+    if (formData.actionsTaken.length === 0) newErrors.actionsTaken = 'Please add at least one action using the + button or Enter key.';
     return newErrors;
   };
 
   const handleSubmit = async () => {
     const validationErrors = validate();
+    if (validationErrors.actionsTaken) {
+      alert('⚠️ Data cannot be blank - Actions Taken is required!\n\nPlease describe an action in the text box and click the [ + ] button or press Enter to add it before submitting.');
+      setErrors(validationErrors);
+      return;
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
