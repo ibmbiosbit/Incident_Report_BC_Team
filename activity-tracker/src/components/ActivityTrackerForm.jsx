@@ -289,12 +289,12 @@ export default function ActivityTrackerForm() {
                   className={`${FIELD_STYLE} appearance-none pr-8 ${errors.erpProject ? 'border-red-300' : ''}`}
                 >
                   <option value="">Select ERP project</option>
-                  <option value="1. Richemont">1. Richemont</option>
-                  <option value="2. ERP2">2. ERP2</option>
-                  <option value="3. ERP3">3. ERP3</option>
-                  <option value="4. ERP4">4. ERP4</option>
-                  <option value="5. ERP6">5. ERP6</option>
-                  <option value="6. CVSS">6. CVSS</option>
+                  <option value="1. Client 1">1. Client 1</option>
+                  <option value="2. Client 2">2. Client 2</option>
+                  <option value="3. Client 3">3. Client 3</option>
+                  <option value="4. Client 4">4. Client 4</option>
+                  <option value="5. Client 5">5. Client 5</option>
+                  <option value="6. Client 6">6. Client 6</option>
                 </select>
                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
